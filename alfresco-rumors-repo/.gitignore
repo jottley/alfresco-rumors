@@ -2,3 +2,6 @@
 /target
 /solr.log*
 /alfresco.log*
+/.settings
+/.classpath
+/.project

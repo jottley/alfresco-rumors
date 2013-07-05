@@ -1,0 +1,58 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.alfresco.integrations</groupId>
+  <artifactId>alfresco-rumors</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <parent>
+  	<groupId>org.alfresco.maven</groupId>
+  	<artifactId>alfresco-sdk-parent</artifactId>
+  	<version>1.0.2</version>
+  </parent>
+  
+     <properties>
+      <buildnumber>SNAPSHOT</buildnumber>
+      <alfresco.groupId>org.alfresco</alfresco.groupId>
+      <alfresco.version>4.2.c</alfresco.version>
+      <!--<alfresco.cloud.version>CLOUD2-SNAPSHOT</alfresco.cloud.version>-->
+      <alfresco.client.war>alfresco</alfresco.client.war>
+      <app.log.root.level>WARN</app.log.root.level>
+      <alfresco.data.location>${project.basedir}/../../data</alfresco.data.location>
+      <alfresco.db.url>jdbc:mysql://localhost/rumors?useUnicode=yes</alfresco.db.url>
+      <alfresco.db.driver>org.gjt.mm.mysql.Driver</alfresco.db.driver>
+      <alfresco.db.datasource.class>com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource</alfresco.db.datasource.class>
+      <mysql-connector.version>5.1.18</mysql-connector.version>
+      <alfresco.jetty.host>localhost</alfresco.jetty.host>
+      <alfresco.jetty.port>8080</alfresco.jetty.port>
+      <share.jetty.host>localhost</share.jetty.host>
+      <share.jetty.port>8081</share.jetty.port>
+      <!-- Repository properties used by test runner -->
+      <alfresco.solr.dir>${project.basedir}/solr_home</alfresco.solr.dir>
+      <alfresco.solr.war>apache-solr-1.4.1.war</alfresco.solr.war>
+      <ooo.exe>/Applications/LibreOffice.app/Contents/MacOS/soffice</ooo.exe>
+      <img.root>/usr/local</img.root>
+      <swf.exe>pdf2swf</swf.exe>
+      <gs.exe>/usr/local/bin/gs</gs.exe>
+      <!-- This controls which properties will be picked in src/test/properties for embedded run -->
+      <env>local</env>
+   </properties>
+   
+   <repositories>
+      <repository>
+         <id>alfresco-public</id>
+         <url>https://artifacts.alfresco.com/nexus/content/groups/internal-snapshots</url>
+      </repository>
+   </repositories>
+   
+   <pluginRepositories>
+      <pluginRepository>
+         <id>alfresco-public</id>
+         <url>https://artifacts.alfresco.com/nexus/content/groups/public</url>
+      </pluginRepository>
+   </pluginRepositories>
+
+   <modules>
+    <module>alfresco-rumors-repo</module>
+    <module>alfresco-rumors-share</module>
+   </modules>
+</project>

@@ -1,0 +1,10 @@
+<webscript>
+    <shortname>Make Node an XMPP Node</shortname>
+    <description>Creates an XMPP user for the Node.</description>
+    <url>/rumors/node/make</url>
+    <lifecycle>internal</lifecycle>
+    <authentication>user</authentication>
+    <format default="json" />
+    <transaction>requiresnew</transaction>
+    <family>rumors</family>
+</webscript>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model name="xmpp:rumorsxmppintegration" xmlns="http://www.alfresco.org/model/dictionary/1.0">
+
+    <description>Rumors Alfresco Openfire integration</description>
+    <author>Jared Ottley</author>
+    <version>1.0</version>
+
+    <imports>
+        <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d" />
+        <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm" />
+    </imports>
+
+    <namespaces>
+        <namespace uri="http://www.alfresco.org/model/rumors/1.0" prefix="xmpp" />
+    </namespaces>
+    
+    <aspects>
+        <aspect name="xmpp:node">
+            <title>Node is XMPP Client</title>
+            <properties>
+                <property name="xmpp:password">
+                    <type>d:encrypted</type>
+                    <mandatory>true</mandatory>
+                    <index enabled="false" />
+                </property>
+                <property name="xmpp:roster">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                    <multiple>true</multiple>
+                </property>
+            </properties>
+        </aspect>
+        <aspect name="xmpp:user">
+            <title>XMPP user</title>
+            <properties>
+                <property name="xmpp:username">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                </property>
+            </properties>
+        </aspect>
+    </aspects>
+    
+</model>

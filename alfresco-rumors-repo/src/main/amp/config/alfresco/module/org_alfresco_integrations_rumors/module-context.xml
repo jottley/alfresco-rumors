@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="rumorsModel.dictionaryBootstrap" parent="dictionaryModelBootstrap"
+		depends-on="dictionaryBootstrap">
+		<property name="models">
+			<list>
+				<value>alfresco/module/org_alfresco_integrations_rumors/rumors-model.xml</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="openfire.userservice"
+		class="org.alfresco.integrations.openfire.user.OpenFireUserServiceImpl">
+		<property name="secret">
+			<value>${openfire.secret}</value>
+		</property>
+		<property name="xmppServer">
+			<value>${openfire.host}</value>
+		</property>
+	</bean>
+
+	<bean id="rumorsService"
+		class="org.alfresco.integrations.rumors.service.RumorsServiceImpl">
+		<property name="openFireUserService">
+			<ref bean="openfire.userservice" />
+		</property>
+		<property name="fileFolderService">
+			<ref bean="fileFolderService" />
+		</property>
+		<property name="nodeService">
+			<ref bean="nodeService" />
+		</property>
+		<property name="metadataEncryptor">
+			<ref bean="metadataEncryptor" />
+		</property>
+	</bean>
+
+	<bean id="webscript.org.alfresco.integrations.rumors.MakeXMPPNode.post"
+		class="org.alfresco.integrations.rumors.webscripts.MakeXMPPNode">
+		<property name="rumorsService">
+			<ref bean="rumorsService" />
+		</property>
+	</bean>
+
+
+</beans>

@@ -1,2 +1,5 @@
 /share.log*
 /target
+/.settings
+/.classpath
+/.project

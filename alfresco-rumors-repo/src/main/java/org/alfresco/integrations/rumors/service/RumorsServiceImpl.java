@@ -51,7 +51,7 @@ public class RumorsServiceImpl
 
 
     @Override
-    public boolean makeXMPPNode(NodeRef nodeRef)
+    public boolean enableXMPPNode(NodeRef nodeRef)
     {
         boolean added = false;
         String password = generatePassword();
@@ -71,6 +71,12 @@ public class RumorsServiceImpl
         }
 
         return added;
+    }
+    
+    
+    public boolean disableXMPPNode(NodeRef nodeRef)
+    {
+        return false;
     }
 
 

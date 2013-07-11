@@ -8,7 +8,10 @@ import org.alfresco.service.cmr.repository.NodeRef;
 public interface RumorsService
 {
 
-    public boolean makeXMPPNode(NodeRef nodeRef);
+    public boolean enableXMPPNode(NodeRef nodeRef);
+
+
+    public boolean disableXMPPNode(NodeRef nodeRef);
 
 
     public boolean userExists(NodeRef nodeRef);

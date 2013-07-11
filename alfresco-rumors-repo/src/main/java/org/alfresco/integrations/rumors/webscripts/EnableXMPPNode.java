@@ -42,7 +42,7 @@ public class EnableXMPPNode
 
         Map<String, Serializable> content = parseContent(req);
 
-        boolean created = rumorsService.makeXMPPNode((NodeRef)content.get(JSON_KEY_NODEREF));
+        boolean created = rumorsService.enableXMPPNode((NodeRef)content.get(JSON_KEY_NODEREF));
 
         model.put(MODEL_SUCCESS, created);
 

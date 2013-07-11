@@ -38,8 +38,8 @@
 		</property>
 	</bean>
 
-	<bean id="webscript.org.alfresco.integrations.rumors.MakeXMPPNode.post"
-		class="org.alfresco.integrations.rumors.webscripts.MakeXMPPNode">
+	<bean id="webscript.org.alfresco.integrations.rumors.EnableXMPPNode.post"
+		class="org.alfresco.integrations.rumors.webscripts.EnableXMPPNode">
 		<property name="rumorsService">
 			<ref bean="rumorsService" />
 		</property>

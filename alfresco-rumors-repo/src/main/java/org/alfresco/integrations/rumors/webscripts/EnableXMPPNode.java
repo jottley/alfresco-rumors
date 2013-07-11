@@ -20,7 +20,7 @@ import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 
 
-public class MakeXMPPNode
+public class EnableXMPPNode
     extends DeclarativeWebScript
 {
     private RumorsService rumorsService;
@@ -60,7 +60,7 @@ public class MakeXMPPNode
 
         try
         {
-            if (content != null && content.getSize() > 0)
+            if (content != null)
             {
                 jsonString = content.getContent();
                 if (jsonString != null && jsonString.length() > 0)

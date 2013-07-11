@@ -1,0 +1,10 @@
+<webscript>
+    <shortname>Enable XMPP Node</shortname>
+    <description>Enable an Alfresco Node as a XMPP client</description>
+    <url>/xmpp/node/enable</url>
+    <lifecycle>internal</lifecycle>
+    <authentication>user</authentication>
+    <format default="json" />
+    <transaction>requiresnew</transaction>
+    <family>xmpp</family>
+</webscript>

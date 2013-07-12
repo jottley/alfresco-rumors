@@ -14,15 +14,24 @@
                     <permission allow="true">Write</permission>
                 </permissions>
             </action>
+            <action id="xmpp-disable-node-action" type="javascript" icon="rumors" label="rumors.actions.disable.node">
+                <param name="function">disableXMPPNodeAction</param>
+                <evaluator>evaluator.doclib.indicator.rumors.xmppNode</evaluator>
+                <permissions>
+                    <permission allow="true">Write</permission>
+                </permissions>
+            </action>
         </actions>
 
         <actionGroups>
             <actionGroup id="document-browse">
                 <action index="250" id="xmpp-enable-node-action"/>
+                <action index="250" id="xmpp-disable-node-action"/>
             </actionGroup>
         
             <actionGroup id="document-details">
                 <action index="250" id="xmpp-enable-node-action"/>
+                <action index="250" id="xmpp-disable-node-action"/>
             </actionGroup>
         </actionGroups>
     </config>

@@ -18,7 +18,7 @@
 			<value>${openfire.secret}</value>
 		</property>
 		<property name="xmppServer">
-			<value>${openfire.host}</value>
+			<value>${openfire.userService.host}</value>
 		</property>
 	</bean>
 
@@ -33,9 +33,15 @@
 		<property name="nodeService">
 			<ref bean="nodeService" />
 		</property>
+		<property name="personService">
+		  <ref bean="personService"/>
+		</property>
 		<property name="metadataEncryptor">
 			<ref bean="metadataEncryptor" />
 		</property>
+        <property name="xmppServer">
+            <value>openfire.host</value>
+        </property>
 	</bean>
 
 	<bean id="webscript.org.alfresco.integrations.rumors.EnableXMPPNode.post"
@@ -44,6 +50,27 @@
 			<ref bean="rumorsService" />
 		</property>
 	</bean>
+
+	<bean id="webscript.org.alfresco.integrations.rumors.DisableXMPPNode.post"
+		class="org.alfresco.integrations.rumors.webscripts.DisableXMPPNode">
+		<property name="rumorsService">
+			<ref bean="rumorsService" />
+		</property>
+	</bean>
+	
+    <bean id="webscript.org.alfresco.integrations.rumors.AddToRoster.post"
+        class="org.alfresco.integrations.rumors.webscripts.AddToRoster">
+        <property name="rumorsService">
+            <ref bean="rumorsService" />
+        </property>
+    </bean>
+    
+    <bean id="webscript.org.alfresco.integrations.rumors.SendMessage.post"
+        class="org.alfresco.integrations.rumors.webscripts.SendMessage">
+        <property name="rumorsService">
+            <ref bean="rumorsService" />
+        </property>
+    </bean>
 
 
 </beans>

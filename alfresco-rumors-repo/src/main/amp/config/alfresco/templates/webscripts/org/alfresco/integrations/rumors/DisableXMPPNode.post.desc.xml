@@ -1,0 +1,10 @@
+<webscript>
+    <shortname>Disable XMPP Node</shortname>
+    <description>Disable an Alfresco Node as a XMPP client</description>
+    <url>/xmpp/node/disable</url>
+    <lifecycle>internal</lifecycle>
+    <authentication>user</authentication>
+    <format default="json" />
+    <transaction>requiresnew</transaction>
+    <family>xmpp</family>
+</webscript>

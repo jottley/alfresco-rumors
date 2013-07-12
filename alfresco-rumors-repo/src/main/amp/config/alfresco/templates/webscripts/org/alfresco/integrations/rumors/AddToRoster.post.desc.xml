@@ -1,0 +1,10 @@
+<webscript>
+    <shortname>Add User To Roster</shortname>
+    <description>Add User To Roster</description>
+    <url>/xmpp/node/roster/add</url>
+    <lifecycle>internal</lifecycle>
+    <authentication>user</authentication>
+    <format default="json" />
+    <transaction>requiresnew</transaction>
+    <family>xmpp</family>
+</webscript>

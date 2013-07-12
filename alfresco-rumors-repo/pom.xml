@@ -79,6 +79,16 @@
 			<artifactId>openfire-userservice-restclient</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+            <groupId>org.jivesoftware</groupId>
+            <artifactId>smack</artifactId>
+            <version>3.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jivesoftware</groupId>
+            <artifactId>smackx</artifactId>
+            <version>3.3.0</version>
+        </dependency>
 
 	</dependencies>
 

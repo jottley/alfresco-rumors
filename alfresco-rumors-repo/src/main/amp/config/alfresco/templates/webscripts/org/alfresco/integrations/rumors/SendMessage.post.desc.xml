@@ -1,0 +1,10 @@
+<webscript>
+    <shortname>Send Message</shortname>
+    <description>Send Message</description>
+    <url>/xmpp/node/message</url>
+    <lifecycle>internal</lifecycle>
+    <authentication>user</authentication>
+    <format default="json" />
+    <transaction>requiresnew</transaction>
+    <family>xmpp</family>
+</webscript>

@@ -14,13 +14,19 @@ public interface RumorsService
     public boolean disableXMPPNode(NodeRef nodeRef);
 
 
+    public boolean addUserToXMPPNodeRoster(NodeRef nodeRef);
+
+
+    public boolean addUserToXMPPNodeRoster(NodeRef nodeRef, boolean recipricate);
+
+
     public boolean userExists(NodeRef nodeRef);
 
 
     public boolean deleteUser(NodeRef nodeRef);
 
 
-    public void sendNotification();
+    public void sendNotification(NodeRef nodeRef, String string);
 
 
 }

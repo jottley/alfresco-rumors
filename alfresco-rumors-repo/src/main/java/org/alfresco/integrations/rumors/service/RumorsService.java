@@ -26,7 +26,10 @@ public interface RumorsService
     public boolean deleteUser(NodeRef nodeRef);
 
 
-    public void sendNotification(NodeRef nodeRef, String string);
+    public void sendNotification(NodeRef nodeRef, String message);
+
+
+    public void sendNotification(NodeRef nodeRef, String jid, String message);
 
 
 }

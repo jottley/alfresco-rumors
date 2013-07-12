@@ -4,7 +4,9 @@ package org.alfresco.integrations.rumors.service;
 
 import java.io.Serializable;
 import java.security.SecureRandom;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.alfresco.integrations.openfire.user.OpenFireUserService;
 import org.alfresco.integrations.openfire.user.excpetions.UserAlreadyExistsException;
@@ -65,7 +67,8 @@ public class RumorsServiceImpl
     {
         this.encryptor = encryptor;
     }
-    
+
+
     public void setXmppServer(String xmppServer)
     {
         this.xmppServer = xmppServer;
@@ -115,23 +118,24 @@ public class RumorsServiceImpl
     {
         return addUserToXMPPNodeRoster(nodeRef, false);
     }
-    
-    
+
+
     public boolean addUserToXMPPNodeRoster(NodeRef nodeRef, boolean recipricate)
     {
         boolean added;
         added = openFireUserService.addRoster(nodeRef.getId(), getUserJID(), AuthenticationUtil.getFullyAuthenticatedUser());
-        
+
         if (recipricate)
         {
             String[] working = getUserJID().split("@");
-            
+
             openFireUserService.addRoster(working[0], nodeRef.getId() + "@" + working[1], fileFolderService.getFileInfo(nodeRef).getName());
         }
 
         if (added)
         {
-            nodeService.setProperty(nodeRef, RumorsModel.PROP_XMPP_NODE_ROSTER, AuthenticationUtil.getFullyAuthenticatedUser());
+            nodeService.setProperty(nodeRef, RumorsModel.PROP_XMPP_NODE_ROSTER, AuthenticationUtil.getFullyAuthenticatedUser()
+                                                                                + ":" + getUserJID());
         }
 
         return true;
@@ -155,7 +159,7 @@ public class RumorsServiceImpl
 
 
     @Override
-    public void sendNotification(NodeRef nodeRef, String string)
+    public void sendNotification(NodeRef nodeRef, String message)
     {
         Connection connection = new XMPPConnection(xmppServer);
         Chat chat;
@@ -171,12 +175,56 @@ public class RumorsServiceImpl
 
                 }
             });
-            chat.sendMessage(string);
+            chat.sendMessage(message);
         }
         catch (XMPPException e)
         {
             // TODO Auto-generated catch block
             e.printStackTrace();
+        }
+    }
+
+
+    @Override
+    public void sendNotification(NodeRef nodeRef, String jid, String message)
+    {
+        Connection connection = new XMPPConnection(xmppServer);
+        Chat chat;
+        try
+        {
+            connection.connect();
+            connection.login(nodeRef.getId(), (String)encryptor.decrypt(RumorsModel.PROP_XMPP_NODE_PASSWORD, nodeService.getProperty(nodeRef, RumorsModel.PROP_XMPP_NODE_PASSWORD)));
+            chat = connection.getChatManager().createChat(jid, new MessageListener()
+            {
+
+                public void processMessage(Chat chat, Message message)
+                {
+
+                }
+            });
+            chat.sendMessage(message);
+        }
+        catch (XMPPException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+
+    public void broadcast(NodeRef nodeRef, String message)
+    {
+        if (nodeService.hasAspect(nodeRef, RumorsModel.ASPECT_XMPP_NODE))
+        {
+            Map<String, String> roster = getRosterEntries(nodeRef);
+
+            if (roster != null)
+            {
+                for (String user : roster.keySet())
+                {
+                    sendNotification(nodeRef, roster.get(user), message);
+                }
+            }
         }
     }
 
@@ -212,6 +260,30 @@ public class RumorsServiceImpl
         }
 
         return jid;
+    }
+
+
+    private Map<String, String> getRosterEntries(NodeRef nodeRef)
+    {
+        Map<String, String> rosterEntries = null;
+        if (nodeService.hasAspect(nodeRef, RumorsModel.ASPECT_XMPP_NODE))
+        {
+            @SuppressWarnings("unchecked")
+            Collection<String> roster = (Collection<String>)nodeService.getProperty(nodeRef, RumorsModel.PROP_XMPP_NODE_ROSTER);
+
+            if (!roster.isEmpty())
+            {
+                rosterEntries = new HashMap<String, String>();
+
+                for (String entry : roster)
+                {
+                    String[] e = entry.split(":");
+                    rosterEntries.put(e[0], e[1]);
+                }
+            }
+        }
+
+        return rosterEntries;
     }
 
 }

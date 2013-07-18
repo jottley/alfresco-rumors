@@ -11,6 +11,7 @@ import java.util.Map;
 import org.alfresco.integrations.openfire.user.OpenFireUserService;
 import org.alfresco.integrations.openfire.user.excpetions.UserAlreadyExistsException;
 import org.alfresco.integrations.rumors.RumorsModel;
+import org.alfresco.model.ContentModel;
 import org.alfresco.repo.node.encryption.MetadataEncryptor;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.model.FileFolderService;
@@ -18,6 +19,8 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.QName;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.Connection;
 import org.jivesoftware.smack.MessageListener;
@@ -30,13 +33,15 @@ public class RumorsServiceImpl
     implements RumorsService
 {
 
-    OpenFireUserService openFireUserService;
-    FileFolderService   fileFolderService;
-    NodeService         nodeService;
-    PersonService       personService;
-    MetadataEncryptor   encryptor;
+    private final static Log log = LogFactory.getLog(RumorsServiceImpl.class);
 
-    private String      xmppServer;
+    OpenFireUserService      openFireUserService;
+    FileFolderService        fileFolderService;
+    NodeService              nodeService;
+    PersonService            personService;
+    MetadataEncryptor        encryptor;
+
+    private String           xmppServer;
 
 
     public void setOpenFireUserService(OpenFireUserService openFireUserService)
@@ -114,6 +119,16 @@ public class RumorsServiceImpl
     }
 
 
+    public boolean updateXMPPNode(NodeRef nodeRef, Map<QName, Serializable> properties)
+    {
+        boolean update;
+
+        update = openFireUserService.updateUser(nodeRef.getId(), (String)encryptor.decrypt(RumorsModel.PROP_XMPP_NODE_PASSWORD, properties.get(RumorsModel.PROP_XMPP_NODE_PASSWORD)), (String)properties.get(ContentModel.PROP_NAME), null);
+
+        return update;
+    }
+
+
     public boolean addUserToXMPPNodeRoster(NodeRef nodeRef)
     {
         return addUserToXMPPNodeRoster(nodeRef, false);
@@ -142,46 +157,36 @@ public class RumorsServiceImpl
     }
 
 
+    public boolean updateXMPPUserRosterName(NodeRef nodeRef)
+    {
+        boolean updated;
+
+        String[] working = getUserJID().split("@");
+
+        updated = openFireUserService.updateRoster(working[0], nodeRef.getId() + "@" + working[1], fileFolderService.getFileInfo(nodeRef).getName());
+
+        return updated;
+    }
+
+
     @Override
     public boolean userExists(NodeRef nodeRef)
     {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException();
     }
 
 
     @Override
     public boolean deleteUser(NodeRef nodeRef)
     {
-        // TODO Auto-generated method stub
-        return false;
+        return openFireUserService.deleteUser(nodeRef.getId());
     }
 
 
     @Override
     public void sendNotification(NodeRef nodeRef, String message)
     {
-        Connection connection = new XMPPConnection(xmppServer);
-        Chat chat;
-        try
-        {
-            connection.connect();
-            connection.login(nodeRef.getId(), (String)encryptor.decrypt(RumorsModel.PROP_XMPP_NODE_PASSWORD, nodeService.getProperty(nodeRef, RumorsModel.PROP_XMPP_NODE_PASSWORD)));
-            chat = connection.getChatManager().createChat(getUserJID(), new MessageListener()
-            {
-
-                public void processMessage(Chat chat, Message message)
-                {
-
-                }
-            });
-            chat.sendMessage(message);
-        }
-        catch (XMPPException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        sendNotification(nodeRef, getUserJID(), message);
     }
 
 
@@ -199,7 +204,7 @@ public class RumorsServiceImpl
 
                 public void processMessage(Chat chat, Message message)
                 {
-
+                    // direct connections back to the thread will be ignored
                 }
             });
             chat.sendMessage(message);
@@ -208,6 +213,10 @@ public class RumorsServiceImpl
         {
             // TODO Auto-generated catch block
             e.printStackTrace();
+        }
+        finally
+        {
+            connection.disconnect();
         }
     }
 

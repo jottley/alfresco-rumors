@@ -34,14 +34,36 @@
 			<ref bean="nodeService" />
 		</property>
 		<property name="personService">
-		  <ref bean="personService"/>
+			<ref bean="personService" />
 		</property>
 		<property name="metadataEncryptor">
 			<ref bean="metadataEncryptor" />
 		</property>
-        <property name="xmppServer">
-            <value>openfire.host</value>
-        </property>
+		<property name="xmppServer">
+			<value>${openfire.host}</value>
+		</property>
+	</bean>
+
+	<bean id="rumorsService.behaviours" class="org.alfresco.integrations.rumors.policy.XMPPNodePolicy"
+		init-method="init">
+		<property name="policyComponent">
+			<ref bean="policyComponent" />
+		</property>
+		<property name="fileFolderService">
+			<ref bean="fileFolderService" />
+		</property>
+		<property name="rumorsService">
+			<ref bean="rumorsService" />
+		</property>
+		<property name="nodeService">
+			<ref bean="nodeService" />
+		</property>
+		<property name="permissionService">
+			<ref bean="permissionService" />
+		</property>
+		<property name="policyFilter">
+			<ref bean="policyBehaviourFilter" />
+		</property>
 	</bean>
 
 	<bean id="webscript.org.alfresco.integrations.rumors.EnableXMPPNode.post"
@@ -57,20 +79,20 @@
 			<ref bean="rumorsService" />
 		</property>
 	</bean>
-	
-    <bean id="webscript.org.alfresco.integrations.rumors.AddToRoster.post"
-        class="org.alfresco.integrations.rumors.webscripts.AddToRoster">
-        <property name="rumorsService">
-            <ref bean="rumorsService" />
-        </property>
-    </bean>
-    
-    <bean id="webscript.org.alfresco.integrations.rumors.SendMessage.post"
-        class="org.alfresco.integrations.rumors.webscripts.SendMessage">
-        <property name="rumorsService">
-            <ref bean="rumorsService" />
-        </property>
-    </bean>
+
+	<bean id="webscript.org.alfresco.integrations.rumors.AddToRoster.post"
+		class="org.alfresco.integrations.rumors.webscripts.AddToRoster">
+		<property name="rumorsService">
+			<ref bean="rumorsService" />
+		</property>
+	</bean>
+
+	<bean id="webscript.org.alfresco.integrations.rumors.SendMessage.post"
+		class="org.alfresco.integrations.rumors.webscripts.SendMessage">
+		<property name="rumorsService">
+			<ref bean="rumorsService" />
+		</property>
+	</bean>
 
 
 </beans>

@@ -28,6 +28,10 @@
                     <mandatory>true</mandatory>
                     <multiple>true</multiple>
                 </property>
+                <property name="xmpp:owner">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                </property>
             </properties>
         </aspect>
         <aspect name="xmpp:user">

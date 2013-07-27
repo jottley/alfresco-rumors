@@ -45,4 +45,5 @@ public interface RumorsService
     public void broadcast(NodeRef nodeRef, String message);
 
 
+    public boolean isXMPPUser();
 }

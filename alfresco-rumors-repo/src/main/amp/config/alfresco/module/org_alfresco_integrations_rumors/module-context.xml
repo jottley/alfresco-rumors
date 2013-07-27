@@ -65,6 +65,24 @@
 			<ref bean="policyBehaviourFilter" />
 		</property>
 	</bean>
+	
+	<bean id="rumorsCustomResponse" parent="slingshotDocLibCustomResponse">
+	   <property name="extensionName">
+	       <value>slingshotDocLib</value>
+	   </property>
+	   <property name="customResponses">
+	       <map merge="true">
+	           <entry key="xmpp">
+	               <bean class="org.alfresco.integrations.rumors.jscript.app.IsXMPPUser">
+                        <property name="rumorsService">
+                            <ref bean="rumorsService"/>
+                        </property>
+                    </bean>
+	           </entry>
+	       </map>
+	   </property>
+	
+	</bean>
 
 	<bean id="webscript.org.alfresco.integrations.rumors.EnableXMPPNode.post"
 		class="org.alfresco.integrations.rumors.webscripts.EnableXMPPNode">

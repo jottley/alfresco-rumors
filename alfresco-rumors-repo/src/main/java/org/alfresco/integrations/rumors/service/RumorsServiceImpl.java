@@ -19,6 +19,7 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.QName;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jivesoftware.smack.Chat;
@@ -238,6 +239,12 @@ public class RumorsServiceImpl
     }
 
 
+    public boolean isXMPPUser()
+    {
+        return StringUtils.isNotBlank(getUserJID()) ? true : false;
+    }
+
+
     private String generatePassword()
     {
         SecureRandom secureRandom = new SecureRandom();
@@ -252,6 +259,7 @@ public class RumorsServiceImpl
     {
         HashMap<QName, Serializable> properties = new HashMap<QName, Serializable>();
         properties.put(RumorsModel.PROP_XMPP_NODE_PASSWORD, encryptor.encrypt(RumorsModel.PROP_XMPP_NODE_PASSWORD, password));
+        properties.put(RumorsModel.PROP_XMPP_NODE_OWNER, AuthenticationUtil.getFullyAuthenticatedUser());
 
         nodeService.addAspect(nodeRef, RumorsModel.ASPECT_XMPP_NODE, properties);
     }

@@ -5,19 +5,18 @@
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <parent>
-  	<groupId>org.alfresco.maven</groupId>
-  	<artifactId>alfresco-sdk-parent</artifactId>
-  	<version>1.0.2</version>
+    <groupId>org.alfresco.maven</groupId>
+    <artifactId>alfresco-sdk-parent</artifactId>
+    <version>1.0.2</version>
   </parent>
   
      <properties>
       <buildnumber>SNAPSHOT</buildnumber>
       <alfresco.groupId>org.alfresco</alfresco.groupId>
-      <alfresco.version>4.2.c</alfresco.version>
-      <!--<alfresco.cloud.version>CLOUD2-SNAPSHOT</alfresco.cloud.version>-->
+      <alfresco.version>4.2.d</alfresco.version>
       <alfresco.client.war>alfresco</alfresco.client.war>
       <app.log.root.level>WARN</app.log.root.level>
-      <alfresco.data.location>${project.basedir}/../../data</alfresco.data.location>
+      <alfresco.data.location>${project.basedir}/../data</alfresco.data.location>
       <alfresco.db.url>jdbc:mysql://localhost/rumors?useUnicode=yes</alfresco.db.url>
       <alfresco.db.driver>org.gjt.mm.mysql.Driver</alfresco.db.driver>
       <alfresco.db.datasource.class>com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource</alfresco.db.datasource.class>
@@ -29,7 +28,7 @@
       <!-- Repository properties used by test runner -->
       <alfresco.solr.dir>${project.basedir}/solr_home</alfresco.solr.dir>
       <alfresco.solr.war>apache-solr-1.4.1.war</alfresco.solr.war>
-      <ooo.exe>/Applications/LibreOffice.app/Contents/MacOS/soffice</ooo.exe>
+      <ooo.exe>/Applications/OpenOffice.app/Contents/MacOS/soffice</ooo.exe>
       <img.root>/usr/local</img.root>
       <swf.exe>pdf2swf</swf.exe>
       <gs.exe>/usr/local/bin/gs</gs.exe>

@@ -9,11 +9,11 @@
 		<jetty.context>alfresco</jetty.context>
 	</properties>
 
-	<parent>
-		<groupId>org.alfresco.integrations</groupId>
-		<artifactId>alfresco-rumors</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
-	</parent>
+    <parent>
+        <groupId>org.alfresco.integrations</groupId>
+        <artifactId>alfresco-rumors</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
 
 	<dependencies>
 		<dependency>
@@ -82,12 +82,12 @@
 		<dependency>
             <groupId>org.jivesoftware</groupId>
             <artifactId>smack</artifactId>
-            <version>3.3.0</version>
+            <version>3.3.1</version>
         </dependency>
         <dependency>
             <groupId>org.jivesoftware</groupId>
             <artifactId>smackx</artifactId>
-            <version>3.3.0</version>
+            <version>3.3.1</version>
         </dependency>
 
 	</dependencies>
@@ -98,8 +98,8 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>1.7</source>
+					<target>1.7</target>
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
@@ -158,12 +158,10 @@
 											<groupId>${alfresco.groupId}</groupId>
 											<artifactId>${alfresco.client.war}</artifactId>
 											<type>war</type>
-											<!--<version>${alfresco.cloud.version}</version> --> <!-- OVERRIDE to depend on cloud WAR, not HEAD -->
 										</artifactItem>
 									</artifactItems>
 								</configuration>
 							</execution>
-							<!-- ADDED for Google Docs AMPs to copy the Solr WAR into the project -->
 							<execution>
 								<id>copy-alfresco-community-lib</id>
 								<goals>
@@ -205,7 +203,7 @@
 										</resource>
 										<resource>
 											<directory>${project.build.testOutputDirectory}</directory>
-											<targetPath>WEB-INF/classes</targetPath>
+											<targetPath>WEB-INF</targetPath>
 											<filtering>${app.filtering.enabled}</filtering>
 										</resource>
 									</resources>

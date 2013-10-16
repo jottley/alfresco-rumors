@@ -1,116 +1,166 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="rumorsModel.dictionaryBootstrap" parent="dictionaryModelBootstrap"
-		depends-on="dictionaryBootstrap">
-		<property name="models">
-			<list>
-				<value>alfresco/module/org_alfresco_integrations_rumors/rumors-model.xml</value>
-			</list>
-		</property>
-	</bean>
+    <bean id="rumorsModel.dictionaryBootstrap" parent="dictionaryModelBootstrap"
+        depends-on="dictionaryBootstrap">
+        <property name="models">
+            <list>
+                <value>alfresco/module/org_alfresco_integrations_rumors/rumors-model.xml</value>
+            </list>
+        </property>
+    </bean>
 
-	<bean id="openfire.userservice"
-		class="org.alfresco.integrations.openfire.user.OpenFireUserServiceImpl">
-		<property name="secret">
-			<value>${openfire.secret}</value>
-		</property>
-		<property name="xmppServer">
-			<value>${openfire.userService.host}</value>
-		</property>
-	</bean>
+    <bean id="openfire.userservice"
+        class="org.alfresco.integrations.openfire.user.OpenFireUserServiceImpl">
+        <property name="secret">
+            <value>${openfire.secret}</value>
+        </property>
+        <property name="xmppServer">
+            <value>${openfire.userService.host}</value>
+        </property>
+    </bean>
 
-	<bean id="rumorsService"
-		class="org.alfresco.integrations.rumors.service.RumorsServiceImpl">
-		<property name="openFireUserService">
-			<ref bean="openfire.userservice" />
-		</property>
-		<property name="fileFolderService">
-			<ref bean="fileFolderService" />
-		</property>
-		<property name="nodeService">
-			<ref bean="nodeService" />
-		</property>
-		<property name="personService">
-			<ref bean="personService" />
-		</property>
-		<property name="metadataEncryptor">
-			<ref bean="metadataEncryptor" />
-		</property>
-		<property name="xmppServer">
-			<value>${openfire.host}</value>
-		</property>
-	</bean>
+    <bean id="rumorsService"
+        class="org.alfresco.integrations.rumors.service.RumorsServiceImpl"
+        init-method="startClients" destroy-method="shutdownClients">
+        <property name="openFireUserService">
+            <ref bean="openfire.userservice" />
+        </property>
+        <property name="fileFolderService">
+            <ref bean="fileFolderService" />
+        </property>
+        <property name="nodeService">
+            <ref bean="nodeService" />
+        </property>
+        <property name="personService">
+            <ref bean="personService" />
+        </property>
+        <property name="commentService">
+            <ref bean="commentService" />
+        </property>
+        <property name="searchService">
+            <ref bean="searchService" />
+        </property>
+        <property name="contentService">
+            <ref bean="contentService" />
+        </property>
+        <property name="transactionService">
+            <ref bean="transactionService" />
+        </property>
+        <property name="versionService">
+            <ref bean="versionService" />
+        </property>
+        <property name="metadataEncryptor">
+            <ref bean="metadataEncryptor" />
+        </property>
+        <property name="nodesWithAspectCannedQueryFactory">
+            <ref bean="nodesWithAspectCannedQueryFactory" />
+        </property>
+        <property name="xmppServer">
+            <value>${openfire.host}</value>
+        </property>
+    </bean>
 
-	<bean id="rumorsService.behaviours" class="org.alfresco.integrations.rumors.policy.XMPPNodePolicy"
-		init-method="init">
-		<property name="policyComponent">
-			<ref bean="policyComponent" />
-		</property>
-		<property name="fileFolderService">
-			<ref bean="fileFolderService" />
-		</property>
-		<property name="rumorsService">
-			<ref bean="rumorsService" />
-		</property>
-		<property name="nodeService">
-			<ref bean="nodeService" />
-		</property>
-		<property name="permissionService">
-			<ref bean="permissionService" />
-		</property>
-		<property name="policyFilter">
-			<ref bean="policyBehaviourFilter" />
-		</property>
-	</bean>
-	
-	<bean id="rumorsCustomResponse" parent="slingshotDocLibCustomResponse">
-	   <property name="extensionName">
-	       <value>slingshotDocLib</value>
-	   </property>
-	   <property name="customResponses">
-	       <map merge="true">
-	           <entry key="xmpp">
-	               <bean class="org.alfresco.integrations.rumors.jscript.app.IsXMPPUser">
+    <bean id="rumorsService.behaviours" class="org.alfresco.integrations.rumors.policy.XMPPNodePolicy"
+        init-method="init">
+        <property name="policyComponent">
+            <ref bean="policyComponent" />
+        </property>
+        <property name="fileFolderService">
+            <ref bean="fileFolderService" />
+        </property>
+        <property name="rumorsService">
+            <ref bean="rumorsService" />
+        </property>
+        <property name="nodeService">
+            <ref bean="nodeService" />
+        </property>
+        <property name="permissionService">
+            <ref bean="permissionService" />
+        </property>
+        <property name="policyFilter">
+            <ref bean="policyBehaviourFilter" />
+        </property>
+    </bean>
+
+    <bean id="rumorsCustomResponse" parent="slingshotDocLibCustomResponse">
+        <property name="extensionName">
+            <value>slingshotDocLib</value>
+        </property>
+        <property name="customResponses">
+            <map merge="true">
+                <entry key="xmpp">
+                    <bean class="org.alfresco.integrations.rumors.jscript.app.IsXMPPUser">
                         <property name="rumorsService">
-                            <ref bean="rumorsService"/>
+                            <ref bean="rumorsService" />
                         </property>
                     </bean>
-	           </entry>
-	       </map>
-	   </property>
-	
-	</bean>
+                </entry>
+            </map>
+        </property>
 
-	<bean id="webscript.org.alfresco.integrations.rumors.EnableXMPPNode.post"
-		class="org.alfresco.integrations.rumors.webscripts.EnableXMPPNode">
-		<property name="rumorsService">
-			<ref bean="rumorsService" />
-		</property>
-	</bean>
+    </bean>
 
-	<bean id="webscript.org.alfresco.integrations.rumors.DisableXMPPNode.post"
-		class="org.alfresco.integrations.rumors.webscripts.DisableXMPPNode">
-		<property name="rumorsService">
-			<ref bean="rumorsService" />
-		</property>
-	</bean>
+    <bean id="webscript.org.alfresco.integrations.rumors.EnableXMPPNode.post"
+        class="org.alfresco.integrations.rumors.webscripts.EnableXMPPNode">
+        <property name="rumorsService">
+            <ref bean="rumorsService" />
+        </property>
+    </bean>
 
-	<bean id="webscript.org.alfresco.integrations.rumors.AddToRoster.post"
-		class="org.alfresco.integrations.rumors.webscripts.AddToRoster">
-		<property name="rumorsService">
-			<ref bean="rumorsService" />
-		</property>
-	</bean>
+    <bean id="webscript.org.alfresco.integrations.rumors.DisableXMPPNode.post"
+        class="org.alfresco.integrations.rumors.webscripts.DisableXMPPNode">
+        <property name="rumorsService">
+            <ref bean="rumorsService" />
+        </property>
+    </bean>
 
-	<bean id="webscript.org.alfresco.integrations.rumors.SendMessage.post"
-		class="org.alfresco.integrations.rumors.webscripts.SendMessage">
-		<property name="rumorsService">
-			<ref bean="rumorsService" />
-		</property>
-	</bean>
+    <bean id="webscript.org.alfresco.integrations.rumors.AddToRoster.post"
+        class="org.alfresco.integrations.rumors.webscripts.AddToRoster">
+        <property name="rumorsService">
+            <ref bean="rumorsService" />
+        </property>
+    </bean>
 
+    <bean id="webscript.org.alfresco.integrations.rumors.SendMessage.post"
+        class="org.alfresco.integrations.rumors.webscripts.SendMessage">
+        <property name="rumorsService">
+            <ref bean="rumorsService" />
+        </property>
+    </bean>
+
+
+    <bean id="nodesWithAspectCannedQueryRegistry" class="org.alfresco.util.registry.NamedObjectRegistry">
+        <property name="storageType" value="org.alfresco.query.CannedQueryFactory" />
+    </bean>
+
+    <bean id="nodesWithAspectCannedQueryFactory"
+        class="org.alfresco.repo.node.GetNodesWithAspectCannedQueryFactory">
+        <property name="nodeDAO">
+            <ref bean="nodeDAO" />
+        </property>
+        <property name="tenantService">
+            <ref bean="tenantService" />
+        </property>
+        <property name="registry">
+            <ref bean="nodesWithAspectCannedQueryRegistry" />
+        </property>
+        <property name="methodSecurity" ref="XMPPNodes_security" />
+    </bean>
+
+    <bean id="XMPPNodes_security"
+        class="org.alfresco.repo.security.permissions.impl.acegi.MethodSecurityBean">
+        <property name="methodSecurityInterceptor">
+            <ref bean="NodeService_security" />
+        </property>
+        <property name="service">
+            <value>org.alfresco.service.cmr.repository.NodeService</value>
+        </property>
+        <property name="methodName">
+            <value>hasAspect</value>
+        </property>
+    </bean>
 
 </beans>

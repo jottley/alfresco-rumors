@@ -3,6 +3,7 @@ package org.alfresco.integrations.rumors.service;
 
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -43,6 +44,9 @@ public interface RumorsService
 
 
     public void broadcast(NodeRef nodeRef, String message);
+    
+    
+    public void broadcast(NodeRef nodeRef, String message, List<String> excludes);
 
 
     public boolean isXMPPUser();

@@ -83,6 +83,12 @@
         <property name="policyFilter">
             <ref bean="policyBehaviourFilter" />
         </property>
+        <property name="commentService">
+            <ref bean="commentService" />
+        </property>
+        <property name="contentService">
+            <ref bean="contentService" />
+        </property>
     </bean>
 
     <bean id="rumorsCustomResponse" parent="slingshotDocLibCustomResponse">

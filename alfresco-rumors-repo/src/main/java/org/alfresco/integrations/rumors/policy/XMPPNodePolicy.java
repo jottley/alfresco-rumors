@@ -3,12 +3,17 @@ package org.alfresco.integrations.rumors.policy;
 
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.alfresco.integrations.rumors.RumorsModel;
 import org.alfresco.integrations.rumors.service.RumorsService;
 import org.alfresco.model.ContentModel;
+import org.alfresco.model.ForumModel;
 import org.alfresco.repo.content.ContentServicePolicies.OnContentUpdatePolicy;
+import org.alfresco.repo.forum.CommentService;
 import org.alfresco.repo.node.NodeServicePolicies.BeforeDeleteNodePolicy;
 import org.alfresco.repo.node.NodeServicePolicies.OnMoveNodePolicy;
 import org.alfresco.repo.node.NodeServicePolicies.OnUpdatePropertiesPolicy;
@@ -19,6 +24,8 @@ import org.alfresco.repo.policy.PolicyComponent;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.model.FileFolderService;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
+import org.alfresco.service.cmr.repository.ContentReader;
+import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.PermissionService;
@@ -39,6 +46,8 @@ public class XMPPNodePolicy
     private NodeService       nodeService;
     private PermissionService permissionService;
     private BehaviourFilter   policyFilter;
+    private CommentService    commentService;
+    private ContentService    contentService;
 
 
     public void setPolicyComponent(final PolicyComponent policyComponent)
@@ -77,12 +86,26 @@ public class XMPPNodePolicy
     }
 
 
+    public void setCommentService(CommentService commentService)
+    {
+        this.commentService = commentService;
+    }
+
+
+    public void setContentService(ContentService contentService)
+    {
+        this.contentService = contentService;
+    }
+
+
     public void init()
     {
         policyComponent.bindClassBehaviour(OnContentUpdatePolicy.QNAME, RumorsModel.ASPECT_XMPP_NODE, new JavaBehaviour(this, "onContentUpdate", NotificationFrequency.FIRST_EVENT));
         policyComponent.bindClassBehaviour(OnUpdatePropertiesPolicy.QNAME, ContentModel.TYPE_CONTENT, new JavaBehaviour(this, "onUpdateProperties", NotificationFrequency.TRANSACTION_COMMIT));
         policyComponent.bindClassBehaviour(OnMoveNodePolicy.QNAME, RumorsModel.ASPECT_XMPP_NODE, new JavaBehaviour(this, "onMoveNode", NotificationFrequency.FIRST_EVENT));
         policyComponent.bindClassBehaviour(BeforeDeleteNodePolicy.QNAME, RumorsModel.ASPECT_XMPP_NODE, new JavaBehaviour(this, "beforeDeleteNode", NotificationFrequency.FIRST_EVENT));
+
+        policyComponent.bindClassBehaviour(OnContentUpdatePolicy.QNAME, ForumModel.TYPE_POST, new JavaBehaviour(this, "onCommentPost", NotificationFrequency.EVERY_EVENT));
     }
 
 
@@ -138,6 +161,30 @@ public class XMPPNodePolicy
     {
         rumorsService.broadcast(nodeRef, nodeService.getProperty(nodeRef, ContentModel.PROP_NAME) + " was deleted.");
         rumorsService.deleteUser(nodeRef);
+    }
+
+
+    public void onCommentPost(NodeRef nodeRef, boolean newContent)
+    {
+        NodeRef ancestor = commentService.getDiscussableAncestor(nodeRef);
+
+        if (nodeService.hasAspect(ancestor, RumorsModel.ASPECT_XMPP_NODE))
+        {
+            rumorsService.broadcast(ancestor, getCommentModifier(nodeRef) + " said " + getComment(nodeRef), Arrays.asList(getCommentModifier(nodeRef)));
+        }
+    }
+
+
+    private String getComment(NodeRef nodeRef)
+    {
+        ContentReader contentReader = contentService.getReader(nodeRef, ContentModel.PROP_CONTENT);
+        return contentReader.getContentString();
+    }
+
+
+    private String getCommentModifier(NodeRef nodeRef)
+    {
+        return (String)nodeService.getProperty(nodeRef, ContentModel.PROP_MODIFIER);
     }
 
 

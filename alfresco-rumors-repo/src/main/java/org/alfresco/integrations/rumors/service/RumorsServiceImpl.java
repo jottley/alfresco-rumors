@@ -326,6 +326,17 @@ public class RumorsServiceImpl
 
     public void broadcast(NodeRef nodeRef, String message)
     {
+        broadcast(nodeRef, message, null);
+    }
+
+
+    public void broadcast(NodeRef nodeRef, String message, List<String> excludes)
+    {
+        if (excludes == null)
+        {
+            excludes = Collections.emptyList();
+        }
+
         if (nodeService.hasAspect(nodeRef, RumorsModel.ASPECT_XMPP_NODE))
         {
             Map<String, String> roster = getRosterEntries(nodeRef);
@@ -334,7 +345,10 @@ public class RumorsServiceImpl
             {
                 for (String user : roster.keySet())
                 {
-                    sendNotification(nodeRef, roster.get(user), message);
+                    if (!excludes.contains(user))
+                    {
+                        sendNotification(nodeRef, roster.get(user), message);
+                    }
                 }
             }
         }
@@ -625,7 +639,7 @@ public class RumorsServiceImpl
                                     try
                                     {
                                         addVersionableAspect(nodeRef);
-                                        
+
                                         ContentWriter contentWriter = contentService.getWriter(nodeRef, ContentModel.PROP_CONTENT, true);
                                         contentWriter.guessMimetype(fileTransferRequest.getFileName());
                                         contentWriter.guessEncoding();

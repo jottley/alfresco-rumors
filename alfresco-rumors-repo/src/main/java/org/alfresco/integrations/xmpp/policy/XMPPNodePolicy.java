@@ -1,15 +1,13 @@
 
-package org.alfresco.integrations.rumors.policy;
+package org.alfresco.integrations.xmpp.policy;
 
 
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
-import org.alfresco.integrations.rumors.RumorsModel;
-import org.alfresco.integrations.rumors.service.RumorsService;
+import org.alfresco.integrations.xmpp.XMPPModel;
+import org.alfresco.integrations.xmpp.service.XMPPService;
 import org.alfresco.model.ContentModel;
 import org.alfresco.model.ForumModel;
 import org.alfresco.repo.content.ContentServicePolicies.OnContentUpdatePolicy;
@@ -41,7 +39,7 @@ public class XMPPNodePolicy
 
     private PolicyComponent   policyComponent;
 
-    private RumorsService     rumorsService;
+    private XMPPService       xmppService;
     private FileFolderService fileFolderService;
     private NodeService       nodeService;
     private PermissionService permissionService;
@@ -56,9 +54,9 @@ public class XMPPNodePolicy
     }
 
 
-    public void setRumorsService(RumorsService rumorsService)
+    public void setXmppService(XMPPService xmppService)
     {
-        this.rumorsService = rumorsService;
+        this.xmppService = xmppService;
     }
 
 
@@ -100,10 +98,10 @@ public class XMPPNodePolicy
 
     public void init()
     {
-        policyComponent.bindClassBehaviour(OnContentUpdatePolicy.QNAME, RumorsModel.ASPECT_XMPP_NODE, new JavaBehaviour(this, "onContentUpdate", NotificationFrequency.FIRST_EVENT));
+        policyComponent.bindClassBehaviour(OnContentUpdatePolicy.QNAME, XMPPModel.ASPECT_XMPP_NODE, new JavaBehaviour(this, "onContentUpdate", NotificationFrequency.FIRST_EVENT));
         policyComponent.bindClassBehaviour(OnUpdatePropertiesPolicy.QNAME, ContentModel.TYPE_CONTENT, new JavaBehaviour(this, "onUpdateProperties", NotificationFrequency.TRANSACTION_COMMIT));
-        policyComponent.bindClassBehaviour(OnMoveNodePolicy.QNAME, RumorsModel.ASPECT_XMPP_NODE, new JavaBehaviour(this, "onMoveNode", NotificationFrequency.FIRST_EVENT));
-        policyComponent.bindClassBehaviour(BeforeDeleteNodePolicy.QNAME, RumorsModel.ASPECT_XMPP_NODE, new JavaBehaviour(this, "beforeDeleteNode", NotificationFrequency.FIRST_EVENT));
+        policyComponent.bindClassBehaviour(OnMoveNodePolicy.QNAME, XMPPModel.ASPECT_XMPP_NODE, new JavaBehaviour(this, "onMoveNode", NotificationFrequency.FIRST_EVENT));
+        policyComponent.bindClassBehaviour(BeforeDeleteNodePolicy.QNAME, XMPPModel.ASPECT_XMPP_NODE, new JavaBehaviour(this, "beforeDeleteNode", NotificationFrequency.FIRST_EVENT));
 
         policyComponent.bindClassBehaviour(OnContentUpdatePolicy.QNAME, ForumModel.TYPE_POST, new JavaBehaviour(this, "onCommentPost", NotificationFrequency.EVERY_EVENT));
     }
@@ -112,7 +110,7 @@ public class XMPPNodePolicy
     @Override
     public void onContentUpdate(NodeRef nodeRef, boolean newContent)
     {
-        rumorsService.broadcast(nodeRef, ((String)nodeService.getProperty(nodeRef, ContentModel.PROP_NAME))
+        xmppService.broadcast(nodeRef, ((String)nodeService.getProperty(nodeRef, ContentModel.PROP_NAME))
                                          + " was updated by "
                                          + AuthenticationUtil.getFullyAuthenticatedUser()
                                          + (nodeService.hasAspect(nodeRef, ContentModel.ASPECT_VERSIONABLE)
@@ -127,16 +125,16 @@ public class XMPPNodePolicy
     {
         if (nodeService.exists(nodeRef))
         {
-            if (nodeService.hasAspect(nodeRef, RumorsModel.ASPECT_XMPP_NODE))
+            if (nodeService.hasAspect(nodeRef, XMPPModel.ASPECT_XMPP_NODE))
             {
                 String previousName = (String)before.get(ContentModel.PROP_NAME);
                 String newName = (String)after.get(ContentModel.PROP_NAME);
 
                 if (!previousName.equals(newName))
                 {
-                    rumorsService.updateXMPPNode(nodeRef, after);
-                    rumorsService.updateXMPPUserRosterName(nodeRef);
-                    rumorsService.broadcast(nodeRef, previousName + " was changed to " + newName + " by "
+                    xmppService.updateXMPPNode(nodeRef, after);
+                    xmppService.updateXMPPUserRosterName(nodeRef);
+                    xmppService.broadcast(nodeRef, previousName + " was changed to " + newName + " by "
                                                      + AuthenticationUtil.getFullyAuthenticatedUser());
                 }
             }
@@ -150,7 +148,7 @@ public class XMPPNodePolicy
         String fromPath = nodeService.getPath(oldChildAssocRef.getParentRef()).toDisplayPath(nodeService, permissionService);
         String toPath = nodeService.getPath(newChildAssocRef.getChildRef()).toDisplayPath(nodeService, permissionService);
 
-        rumorsService.broadcast(newChildAssocRef.getChildRef(), nodeService.getProperty(newChildAssocRef.getChildRef(), ContentModel.PROP_NAME)
+        xmppService.broadcast(newChildAssocRef.getChildRef(), nodeService.getProperty(newChildAssocRef.getChildRef(), ContentModel.PROP_NAME)
                                                                 + " was moved from " + fromPath + " to " + toPath);
 
     }
@@ -159,8 +157,8 @@ public class XMPPNodePolicy
     @Override
     public void beforeDeleteNode(NodeRef nodeRef)
     {
-        rumorsService.broadcast(nodeRef, nodeService.getProperty(nodeRef, ContentModel.PROP_NAME) + " was deleted.");
-        rumorsService.deleteUser(nodeRef);
+        xmppService.broadcast(nodeRef, nodeService.getProperty(nodeRef, ContentModel.PROP_NAME) + " was deleted.");
+        xmppService.deleteUser(nodeRef);
     }
 
 
@@ -168,9 +166,9 @@ public class XMPPNodePolicy
     {
         NodeRef ancestor = commentService.getDiscussableAncestor(nodeRef);
 
-        if (nodeService.hasAspect(ancestor, RumorsModel.ASPECT_XMPP_NODE))
+        if (nodeService.hasAspect(ancestor, XMPPModel.ASPECT_XMPP_NODE))
         {
-            rumorsService.broadcast(ancestor, getCommentModifier(nodeRef) + " said " + getComment(nodeRef), Arrays.asList(getCommentModifier(nodeRef)));
+            xmppService.broadcast(ancestor, getCommentModifier(nodeRef) + " said " + getComment(nodeRef), Arrays.asList(getCommentModifier(nodeRef)));
         }
     }
 

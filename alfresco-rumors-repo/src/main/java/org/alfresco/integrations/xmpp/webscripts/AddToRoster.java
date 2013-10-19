@@ -1,5 +1,5 @@
 
-package org.alfresco.integrations.rumors.webscripts;
+package org.alfresco.integrations.xmpp.webscripts;
 
 
 import java.io.IOException;
@@ -7,45 +7,47 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.alfresco.integrations.rumors.service.RumorsService;
+import org.alfresco.integrations.xmpp.service.XMPPService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.apache.commons.httpclient.HttpStatus;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.extensions.surf.util.Content;
 import org.springframework.extensions.webscripts.Cache;
-import org.springframework.extensions.webscripts.DeclarativeWebScript;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 
 
-public class DisableXMPPNode
-    extends DeclarativeWebScript
+public class AddToRoster
+    extends XMPPWebScript
 {
-    private RumorsService rumorsService;
+    private XMPPService  xmppService;
 
-    private final String  JSON_KEY_NODEREF = "nodeRef";
-    private final String  MODEL_SUCCESS    = "success";
+    private final String JSON_KEY_NODEREF     = "nodeRef";
+    private final String JSON_KEY_RECIPRICATE = "recipricate";
+    private final String MODEL_SUCCESS        = "success";
 
 
-    public void setRumorsService(RumorsService rumorsService)
+    public void setXmppService(XMPPService xmppService)
     {
-        this.rumorsService = rumorsService;
+        this.xmppService = xmppService;
     }
 
 
     @Override
     protected Map<String, Object> executeImpl(WebScriptRequest req, Status status, Cache cache)
     {
+        getXmppServiceSubsystem();
+
         Map<String, Object> model = new HashMap<String, Object>();
-        boolean disabled = false;
+        boolean added = false;
 
         Map<String, Serializable> content = parseContent(req);
 
-        disabled = rumorsService.disableXMPPNode((NodeRef)content.get(JSON_KEY_NODEREF));
+        added = xmppService.addUserToXMPPNodeRoster((NodeRef)content.get(JSON_KEY_NODEREF), (Boolean)content.get(JSON_KEY_RECIPRICATE));
 
-        model.put(MODEL_SUCCESS, disabled);
+        model.put(MODEL_SUCCESS, added);
 
         return model;
     }
@@ -76,6 +78,16 @@ public class DisableXMPPNode
                     {
                         throw new WebScriptException(HttpStatus.SC_BAD_REQUEST, "Key " + JSON_KEY_NODEREF
                                                                                 + " is missing from JSON: " + jsonString);
+                    }
+
+                    if (json.has(JSON_KEY_RECIPRICATE))
+                    {
+                        boolean recipricate = json.getBoolean(JSON_KEY_RECIPRICATE);
+                        result.put(JSON_KEY_RECIPRICATE, recipricate);
+                    }
+                    else
+                    {
+                        result.put(JSON_KEY_RECIPRICATE, false);
                     }
                 }
                 else

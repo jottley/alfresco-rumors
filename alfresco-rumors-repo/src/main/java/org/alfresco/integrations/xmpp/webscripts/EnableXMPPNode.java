@@ -1,5 +1,5 @@
 
-package org.alfresco.integrations.rumors.webscripts;
+package org.alfresco.integrations.xmpp.webscripts;
 
 
 import java.io.IOException;
@@ -7,46 +7,46 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.alfresco.integrations.rumors.service.RumorsService;
+import org.alfresco.integrations.xmpp.service.XMPPService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.apache.commons.httpclient.HttpStatus;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.extensions.surf.util.Content;
 import org.springframework.extensions.webscripts.Cache;
-import org.springframework.extensions.webscripts.DeclarativeWebScript;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 
 
-public class SendMessage
-    extends DeclarativeWebScript
+public class EnableXMPPNode
+    extends XMPPWebScript
 {
-    private RumorsService rumorsService;
+    private XMPPService  xmppService;
 
-    private final String  JSON_KEY_NODEREF = "nodeRef";
-    private final String  JSON_KEY_MESSAGE = "message";
-
-    private final String  MODEL_SUCCESS    = "success";
+    private final String JSON_KEY_NODEREF = "nodeRef";
+    private final String MODEL_SUCCESS    = "success";
 
 
-    public void setRumorsService(RumorsService rumorsService)
+    public void setXmppService(XMPPService xmppService)
     {
-        this.rumorsService = rumorsService;
+        this.xmppService = xmppService;
     }
 
 
     @Override
     protected Map<String, Object> executeImpl(WebScriptRequest req, Status status, Cache cache)
     {
+        getXmppServiceSubsystem();
+
         Map<String, Object> model = new HashMap<String, Object>();
 
         Map<String, Serializable> content = parseContent(req);
 
-        rumorsService.sendNotification((NodeRef)content.get(JSON_KEY_NODEREF), (String)content.get(JSON_KEY_MESSAGE));
+        boolean created = xmppService.enableXMPPNode((NodeRef)content.get(JSON_KEY_NODEREF));
 
-        model.put(MODEL_SUCCESS, true);
+        model.put(MODEL_SUCCESS, created);
+
         return model;
     }
 
@@ -77,17 +77,6 @@ public class SendMessage
                         throw new WebScriptException(HttpStatus.SC_BAD_REQUEST, "Key " + JSON_KEY_NODEREF
                                                                                 + " is missing from JSON: " + jsonString);
                     }
-
-                    if (json.has(JSON_KEY_MESSAGE))
-                    {
-                        String message = json.getString(JSON_KEY_MESSAGE);
-                        result.put(JSON_KEY_MESSAGE, message);
-                    }
-                    else
-                    {
-                        throw new WebScriptException(HttpStatus.SC_BAD_REQUEST, "Key " + JSON_KEY_NODEREF
-                                                                                + " is missing from JSON: " + jsonString);
-                    }
                 }
                 else
                 {
@@ -111,5 +100,4 @@ public class SendMessage
 
         return result;
     }
-
 }

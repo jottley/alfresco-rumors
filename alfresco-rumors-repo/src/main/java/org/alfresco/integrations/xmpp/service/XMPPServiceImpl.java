@@ -1,5 +1,5 @@
 
-package org.alfresco.integrations.rumors.service;
+package org.alfresco.integrations.xmpp.service;
 
 
 import java.io.File;
@@ -14,8 +14,8 @@ import java.util.Map;
 
 import org.alfresco.integrations.openfire.user.OpenFireUserService;
 import org.alfresco.integrations.openfire.user.excpetions.UserAlreadyExistsException;
-import org.alfresco.integrations.rumors.RumorsModel;
-import org.alfresco.integrations.rumors.client.XMPPClient;
+import org.alfresco.integrations.xmpp.XMPPModel;
+import org.alfresco.integrations.xmpp.client.XMPPClient;
 import org.alfresco.model.ContentModel;
 import org.alfresco.query.CannedQueryResults;
 import org.alfresco.query.PagingRequest;
@@ -27,7 +27,9 @@ import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper.RetryingTransactionCallback;
 import org.alfresco.repo.version.Version2Model;
 import org.alfresco.service.cmr.model.FileFolderService;
+import org.alfresco.service.cmr.model.FileInfo;
 import org.alfresco.service.cmr.repository.ContentIOException;
+import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -58,13 +60,14 @@ import org.jivesoftware.smackx.filetransfer.FileTransferListener;
 import org.jivesoftware.smackx.filetransfer.FileTransferManager;
 import org.jivesoftware.smackx.filetransfer.FileTransferRequest;
 import org.jivesoftware.smackx.filetransfer.IncomingFileTransfer;
+import org.jivesoftware.smackx.filetransfer.OutgoingFileTransfer;
 
 
-public class RumorsServiceImpl
-    implements RumorsService
+public class XMPPServiceImpl
+    implements XMPPService
 {
 
-    private final static Log             log     = LogFactory.getLog(RumorsServiceImpl.class);
+    private final static Log             log     = LogFactory.getLog(XMPPServiceImpl.class);
 
     OpenFireUserService                  openFireUserService;
     FileFolderService                    fileFolderService;
@@ -167,7 +170,7 @@ public class RumorsServiceImpl
 
             if (added)
             {
-                addRumorsAspect(nodeRef, password);
+                addXMPPAspect(nodeRef, password);
             }
         }
         catch (UserAlreadyExistsException e)
@@ -187,7 +190,7 @@ public class RumorsServiceImpl
 
         if (disabled)
         {
-            nodeService.removeAspect(nodeRef, RumorsModel.ASPECT_XMPP_NODE);
+            nodeService.removeAspect(nodeRef, XMPPModel.ASPECT_XMPP_NODE);
             if (clients.containsKey(nodeRef.toString()))
             {
                 clients.get(nodeRef.toString()).disconnect();
@@ -203,7 +206,7 @@ public class RumorsServiceImpl
     {
         boolean update;
 
-        update = openFireUserService.updateUser(nodeRef.getId(), (String)encryptor.decrypt(RumorsModel.PROP_XMPP_NODE_PASSWORD, properties.get(RumorsModel.PROP_XMPP_NODE_PASSWORD)), (String)properties.get(ContentModel.PROP_NAME), null);
+        update = openFireUserService.updateUser(nodeRef.getId(), (String)encryptor.decrypt(XMPPModel.PROP_XMPP_NODE_PASSWORD, properties.get(XMPPModel.PROP_XMPP_NODE_PASSWORD)), (String)properties.get(ContentModel.PROP_NAME), null);
 
         return update;
     }
@@ -229,7 +232,7 @@ public class RumorsServiceImpl
 
         if (added)
         {
-            nodeService.setProperty(nodeRef, RumorsModel.PROP_XMPP_NODE_ROSTER, AuthenticationUtil.getFullyAuthenticatedUser()
+            nodeService.setProperty(nodeRef, XMPPModel.PROP_XMPP_NODE_ROSTER, AuthenticationUtil.getFullyAuthenticatedUser()
                                                                                 + ":" + getUserJID());
         }
 
@@ -288,28 +291,17 @@ public class RumorsServiceImpl
         }
         else
         {
-            Connection connection = new XMPPConnection(xmppServer);
-            try
-            {
-                connection.connect();
-                connection.login(nodeRef.getId(), (String)encryptor.decrypt(RumorsModel.PROP_XMPP_NODE_PASSWORD, nodeService.getProperty(nodeRef, RumorsModel.PROP_XMPP_NODE_PASSWORD)));
-                connection.getChatManager().addChatListener(new RumorsServiceImpl.ChatListner(nodeRef));
+            Connection connection = createConnection(nodeRef);
 
-                chat = connection.getChatManager().createChat(jid, nodeRef.toString(), new MessageListener()
+            chat = connection.getChatManager().createChat(jid, nodeRef.toString(), new MessageListener()
+            {
+                public void processMessage(Chat chat, Message message)
                 {
-                    public void processMessage(Chat chat, Message message)
-                    {
-                        messageHandler(nodeRef, chat, message);
-                    }
-                });
+                    messageHandler(nodeRef, chat, message);
+                }
+            });
 
-                clients.put(nodeRef.toString(), new XMPPClient(connection, createFileTransferManager(connection, nodeRef)));
-            }
-            catch (XMPPException e)
-            {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            clients.put(nodeRef.toString(), new XMPPClient(connection, createFileTransferManager(connection, nodeRef)));
         }
 
         try
@@ -337,7 +329,7 @@ public class RumorsServiceImpl
             excludes = Collections.emptyList();
         }
 
-        if (nodeService.hasAspect(nodeRef, RumorsModel.ASPECT_XMPP_NODE))
+        if (nodeService.hasAspect(nodeRef, XMPPModel.ASPECT_XMPP_NODE))
         {
             Map<String, String> roster = getRosterEntries(nodeRef);
 
@@ -371,13 +363,13 @@ public class RumorsServiceImpl
     }
 
 
-    private void addRumorsAspect(NodeRef nodeRef, String password)
+    private void addXMPPAspect(NodeRef nodeRef, String password)
     {
         HashMap<QName, Serializable> properties = new HashMap<QName, Serializable>();
-        properties.put(RumorsModel.PROP_XMPP_NODE_PASSWORD, encryptor.encrypt(RumorsModel.PROP_XMPP_NODE_PASSWORD, password));
-        properties.put(RumorsModel.PROP_XMPP_NODE_OWNER, AuthenticationUtil.getFullyAuthenticatedUser());
+        properties.put(XMPPModel.PROP_XMPP_NODE_PASSWORD, encryptor.encrypt(XMPPModel.PROP_XMPP_NODE_PASSWORD, password));
+        properties.put(XMPPModel.PROP_XMPP_NODE_OWNER, AuthenticationUtil.getFullyAuthenticatedUser());
 
-        nodeService.addAspect(nodeRef, RumorsModel.ASPECT_XMPP_NODE, properties);
+        nodeService.addAspect(nodeRef, XMPPModel.ASPECT_XMPP_NODE, properties);
     }
 
 
@@ -387,9 +379,9 @@ public class RumorsServiceImpl
 
         NodeRef person = personService.getPerson(AuthenticationUtil.getFullyAuthenticatedUser());
 
-        if (nodeService.hasAspect(person, RumorsModel.ASPECT_XMPP_USER))
+        if (nodeService.hasAspect(person, XMPPModel.ASPECT_XMPP_USER))
         {
-            jid = (String)nodeService.getProperty(person, RumorsModel.PROP_XMPP_USER_USERNAME);
+            jid = (String)nodeService.getProperty(person, XMPPModel.PROP_XMPP_USER_USERNAME);
         }
 
         return jid;
@@ -399,10 +391,10 @@ public class RumorsServiceImpl
     private Map<String, String> getRosterEntries(NodeRef nodeRef)
     {
         Map<String, String> rosterEntries = null;
-        if (nodeService.hasAspect(nodeRef, RumorsModel.ASPECT_XMPP_NODE))
+        if (nodeService.hasAspect(nodeRef, XMPPModel.ASPECT_XMPP_NODE))
         {
             @SuppressWarnings("unchecked")
-            Collection<String> roster = (Collection<String>)nodeService.getProperty(nodeRef, RumorsModel.PROP_XMPP_NODE_ROSTER);
+            Collection<String> roster = (Collection<String>)nodeService.getProperty(nodeRef, XMPPModel.PROP_XMPP_NODE_ROSTER);
 
             if (!roster.isEmpty())
             {
@@ -428,7 +420,7 @@ public class RumorsServiceImpl
             public CannedQueryResults<NodeRef> doWork()
                 throws Exception
             {
-                return nodesWithAspectCannedQueryFactory.getCannedQuery(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, Collections.singleton(RumorsModel.ASPECT_XMPP_NODE), new PagingRequest(10)).execute();
+                return nodesWithAspectCannedQueryFactory.getCannedQuery(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, Collections.singleton(XMPPModel.ASPECT_XMPP_NODE), new PagingRequest(10)).execute();
             }
         });
 
@@ -456,27 +448,8 @@ public class RumorsServiceImpl
 
     private XMPPClient startClient(final NodeRef nodeRef)
     {
-        Connection connection = new XMPPConnection(xmppServer);
-        FileTransferManager fileTransferManager = null;
-
-        try
-        {
-            log.info("Starting XMPP Client for " + nodeRef.getId());
-            connection.connect();
-            connection.login(nodeRef.getId(), (String)encryptor.decrypt(RumorsModel.PROP_XMPP_NODE_PASSWORD, nodeService.getProperty(nodeRef, RumorsModel.PROP_XMPP_NODE_PASSWORD)));
-
-            connection.getChatManager().addChatListener(new RumorsServiceImpl.ChatListner(nodeRef));
-
-            fileTransferManager = createFileTransferManager(connection, nodeRef);
-
-        }
-        catch (XMPPException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        return new XMPPClient(connection, fileTransferManager);
+        Connection connection = createConnection(nodeRef);
+        return new XMPPClient(connection, createFileTransferManager(connection, nodeRef));
     }
 
 
@@ -581,7 +554,25 @@ public class RumorsServiceImpl
                 public Object doWork()
                     throws Exception
                 {
-                    commentService.createComment(nodeRef, "XMPP Comment", message.getBody(), false);
+                    String body = message.getBody();
+
+                    if (body.startsWith("#"))
+                    {
+                        String command = body.substring(1).toLowerCase();
+                        switch (command)
+                        {
+                            case "download":
+                                download(nodeRef, message.getFrom());
+                                break;
+                            default:
+                                sendNotification(nodeRef, message.getFrom(), "Unknown Command: " + command);
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        commentService.createComment(nodeRef, "XMPP Comment", body, false);
+                    }
 
                     return null;
                 }
@@ -591,7 +582,7 @@ public class RumorsServiceImpl
     }
 
 
-    private FileTransferManager createFileTransferManager(Connection connection, final NodeRef nodeRef)
+    public FileTransferManager createFileTransferManager(Connection connection, final NodeRef nodeRef)
     {
         FileTransferManager fileTransferManager = new FileTransferManager(connection);
 
@@ -694,6 +685,73 @@ public class RumorsServiceImpl
 
         log.debug("Version Node:" + nodeRef + "; Version Properties: " + versionProperties);
         versionService.createVersion(nodeRef, versionProperties);
+    }
+
+
+    private Connection createConnection(NodeRef nodeRef)
+    {
+        Connection connection = new XMPPConnection(xmppServer);
+
+        try
+        {
+            log.info("Starting XMPP Client for " + nodeRef.getId());
+            connection.connect();
+            connection.login(nodeRef.getId(), (String)encryptor.decrypt(XMPPModel.PROP_XMPP_NODE_PASSWORD, nodeService.getProperty(nodeRef, XMPPModel.PROP_XMPP_NODE_PASSWORD)));
+
+            connection.getChatManager().addChatListener(new XMPPServiceImpl.ChatListner(nodeRef));
+        }
+        catch (XMPPException e)
+        {
+            e.printStackTrace();
+        }
+
+        return connection;
+    }
+
+
+    public void download(final NodeRef nodeRef, final String jid)
+    {
+        String username = getAlfrescoUser(jid);
+
+        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Object>()
+        {
+
+            @Override
+            public Object doWork()
+                throws Exception
+            {
+                RetryingTransactionCallback<Object> txnWork = new RetryingTransactionCallback<Object>()
+                {
+                    public Object execute()
+                        throws Exception
+                    {
+                        log.info("About to send file");
+                        try
+                        {
+
+                            ContentReader contentReader = contentService.getReader(nodeRef, ContentModel.PROP_CONTENT);
+                            FileInfo fileInfo = fileFolderService.getFileInfo(nodeRef);
+
+                            XMPPClient xmppClient = clients.get(nodeRef.toString());
+
+                            FileTransferManager fileTransferManager = xmppClient.getFileTransferManager();
+                            OutgoingFileTransfer outGoingFileTransfer = fileTransferManager.createOutgoingFileTransfer(jid);
+
+                            outGoingFileTransfer.sendStream(contentReader.getContentInputStream(), fileInfo.getName(), contentReader.getSize(), (String)nodeService.getProperty(nodeRef, ContentModel.PROP_DESCRIPTION));
+                        }
+                        catch (Exception e)
+                        {
+                            e.printStackTrace();
+                        }
+                        return null;
+                    }
+                };
+
+                transactionService.getRetryingTransactionHelper().doInTransaction(txnWork, false);
+                return null;
+            }
+        }, username);
+
     }
 
 

@@ -1,24 +1,24 @@
 
-package org.alfresco.integrations.rumors.jscript.app;
+package org.alfresco.integrations.xmpp.jscript.app;
 
 
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.alfresco.integrations.rumors.service.RumorsService;
+import org.alfresco.integrations.xmpp.service.XMPPService;
 import org.alfresco.repo.jscript.app.CustomResponse;
 
 
 public class IsXMPPUser
     implements CustomResponse
 {
-    RumorsService rumorsService;
+    XMPPService xmppService;
 
 
-    public void setRumorsService(RumorsService rumorsService)
+    public void setXmppService(XMPPService xmppService)
     {
-        this.rumorsService = rumorsService;
+        this.xmppService = xmppService;
     }
 
 
@@ -27,7 +27,7 @@ public class IsXMPPUser
     {
         Map<String, Serializable> jsonObj = new LinkedHashMap<String, Serializable>();
 
-        jsonObj.put("isXMPPUser", rumorsService.isXMPPUser());
+        jsonObj.put("isXMPPUser", xmppService.isXMPPUser());
 
         return (Serializable)jsonObj;
     }

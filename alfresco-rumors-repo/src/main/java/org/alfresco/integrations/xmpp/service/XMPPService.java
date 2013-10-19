@@ -1,5 +1,5 @@
 
-package org.alfresco.integrations.rumors.service;
+package org.alfresco.integrations.xmpp.service;
 
 
 import java.io.Serializable;
@@ -10,7 +10,7 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.QName;
 
 
-public interface RumorsService
+public interface XMPPService
 {
 
     public boolean enableXMPPNode(NodeRef nodeRef);
@@ -44,8 +44,8 @@ public interface RumorsService
 
 
     public void broadcast(NodeRef nodeRef, String message);
-    
-    
+
+
     public void broadcast(NodeRef nodeRef, String message, List<String> excludes);
 
 

@@ -3,11 +3,11 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="rumorsModel.dictionaryBootstrap" parent="dictionaryModelBootstrap"
+    <bean id="xmppModel.dictionaryBootstrap" parent="dictionaryModelBootstrap"
         depends-on="dictionaryBootstrap">
         <property name="models">
             <list>
-                <value>alfresco/module/org_alfresco_integrations_rumors/rumors-model.xml</value>
+                <value>alfresco/subsystems/xmpp/default/xmpp-model.xml</value>
             </list>
         </property>
     </bean>
@@ -22,9 +22,9 @@
         </property>
     </bean>
 
-    <bean id="rumorsService"
-        class="org.alfresco.integrations.rumors.service.RumorsServiceImpl"
-        init-method="startClients" destroy-method="shutdownClients">
+    <bean id="xmppService"
+        class="org.alfresco.integrations.xmpp.service.XMPPServiceImpl"
+        init-method="startClients" destroy-method="shutdownClients" >
         <property name="openFireUserService">
             <ref bean="openfire.userservice" />
         </property>
@@ -63,7 +63,7 @@
         </property>
     </bean>
 
-    <bean id="rumorsService.behaviours" class="org.alfresco.integrations.rumors.policy.XMPPNodePolicy"
+    <bean id="xmppService.behaviours" class="org.alfresco.integrations.xmpp.policy.XMPPNodePolicy"
         init-method="init">
         <property name="policyComponent">
             <ref bean="policyComponent" />
@@ -71,8 +71,8 @@
         <property name="fileFolderService">
             <ref bean="fileFolderService" />
         </property>
-        <property name="rumorsService">
-            <ref bean="rumorsService" />
+        <property name="xmppService">
+            <ref bean="xmppService" />
         </property>
         <property name="nodeService">
             <ref bean="nodeService" />
@@ -91,50 +91,22 @@
         </property>
     </bean>
 
-    <bean id="rumorsCustomResponse" parent="slingshotDocLibCustomResponse">
+    <bean id="xmppCustomResponse" parent="slingshotDocLibCustomResponse">
         <property name="extensionName">
             <value>slingshotDocLib</value>
         </property>
         <property name="customResponses">
             <map merge="true">
                 <entry key="xmpp">
-                    <bean class="org.alfresco.integrations.rumors.jscript.app.IsXMPPUser">
-                        <property name="rumorsService">
-                            <ref bean="rumorsService" />
+                    <bean class="org.alfresco.integrations.xmpp.jscript.app.IsXMPPUser">
+                        <property name="xmppService">
+                            <ref bean="xmppService" />
                         </property>
                     </bean>
                 </entry>
             </map>
         </property>
 
-    </bean>
-
-    <bean id="webscript.org.alfresco.integrations.rumors.EnableXMPPNode.post"
-        class="org.alfresco.integrations.rumors.webscripts.EnableXMPPNode">
-        <property name="rumorsService">
-            <ref bean="rumorsService" />
-        </property>
-    </bean>
-
-    <bean id="webscript.org.alfresco.integrations.rumors.DisableXMPPNode.post"
-        class="org.alfresco.integrations.rumors.webscripts.DisableXMPPNode">
-        <property name="rumorsService">
-            <ref bean="rumorsService" />
-        </property>
-    </bean>
-
-    <bean id="webscript.org.alfresco.integrations.rumors.AddToRoster.post"
-        class="org.alfresco.integrations.rumors.webscripts.AddToRoster">
-        <property name="rumorsService">
-            <ref bean="rumorsService" />
-        </property>
-    </bean>
-
-    <bean id="webscript.org.alfresco.integrations.rumors.SendMessage.post"
-        class="org.alfresco.integrations.rumors.webscripts.SendMessage">
-        <property name="rumorsService">
-            <ref bean="rumorsService" />
-        </property>
     </bean>
 
 

@@ -1,5 +1,5 @@
 
-package org.alfresco.integrations.rumors.client;
+package org.alfresco.integrations.xmpp.client;
 
 
 import org.jivesoftware.smack.ChatManager;
@@ -19,16 +19,23 @@ public class XMPPClient
         this.connection = connection;
         this.fileTransferManager = fileTransferManager;
     }
-    
+
+
     public void disconnect()
     {
         connection.disconnect();
     }
-    
-    
+
+
     public ChatManager getChatManager()
     {
         return connection.getChatManager();
+    }
+
+
+    public FileTransferManager getFileTransferManager()
+    {
+        return fileTransferManager;
     }
 
 

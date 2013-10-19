@@ -1,22 +1,22 @@
 <alfresco-config>
     <config evaluator="string-compare" condition="DocLibCustom">
         <dependencies>
-            <js src="/rumors/components/documentlibrary/actions-common.js" />
-            <js src="/rumors/components/documentlibrary/actions.js" />
+            <js src="/xmpp/components/documentlibrary/actions-common.js" />
+            <js src="/xmpp/components/documentlibrary/actions.js" />
         </dependencies>
     </config>
     <config evaluator="string-compare" condition="DocLibActions">
         <actions>
-            <action id="xmpp-enable-node-action" type="javascript" icon="rumors" label="rumors.actions.enable.node">
+            <action id="xmpp-enable-node-action" type="javascript" icon="xmpp" label="xmpp.actions.enable.node">
                 <param name="function">enableXMPPNodeAction</param>
-                <evaluator>evaluator.doclib.rumors.doesnothaveaspect</evaluator>
+                <evaluator>evaluator.doclib.xmpp.doesnothaveaspect</evaluator>
                 <permissions>
                     <permission allow="true">Write</permission>
                 </permissions>
             </action>
-            <action id="xmpp-disable-node-action" type="javascript" icon="rumors" label="rumors.actions.disable.node">
+            <action id="xmpp-disable-node-action" type="javascript" icon="xmpp" label="xmpp.actions.disable.node">
                 <param name="function">disableXMPPNodeAction</param>
-                <evaluator>evaluator.doclib.indicator.rumors.xmppNode</evaluator>
+                <evaluator>evaluator.doclib.indicator.xmpp.xmppNode</evaluator>
                 <permissions>
                     <permission allow="true">Write</permission>
                 </permissions>
@@ -38,8 +38,8 @@
     
     <config evaluator="string-compare" condition="DocumentLibrary">
         <indicators>
-            <indicator id="xmpp-node" index="250" icon="rumors-16.png">
-                <evaluator>evaluator.doclib.indicator.rumors.xmppNode</evaluator>
+            <indicator id="xmpp-node" index="250" icon="xmpp-16.png">
+                <evaluator>evaluator.doclib.indicator.xmpp.xmppNode</evaluator>
             </indicator>
         </indicators>
     </config>

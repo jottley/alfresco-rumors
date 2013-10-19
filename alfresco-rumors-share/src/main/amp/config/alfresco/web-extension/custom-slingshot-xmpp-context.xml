@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
+
+<beans>
+
+    <bean id="xmpp.custom.resources"
+        class="org.springframework.extensions.surf.util.ResourceBundleBootstrapComponent">
+        <property name="resourceBundles">
+            <list>
+                <value>alfresco.messages.xmpp</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="evaluator.doclib.xmpp.doesnothaveaspect" class="org.alfresco.web.evaluator.HasAspectEvaluator">
+        <property name="aspects">
+            <list>
+                <value>xmpp:node</value>
+            </list>
+        </property>
+        <property name="negateOutput" value="true" />
+    </bean>
+
+    <bean id="evaluator.doclib.indicator.xmpp.xmppNode" parent="evaluator.doclib.metadata.hasAspect">
+        <property name="aspects">
+            <list>
+                <value>xmpp:node</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="webframework.factory.xmpp.user"
+        class="org.alfresco.integrations.xmpp.share.XMPPUserFactory"
+        parent="webframework.factory.base" />
+
+</beans>

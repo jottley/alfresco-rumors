@@ -1,5 +1,5 @@
 
-package org.alfresco.integrations.rumors.share;
+package org.alfresco.integrations.xmpp.share;
 
 
 import java.io.ByteArrayInputStream;
@@ -25,11 +25,11 @@ import org.springframework.extensions.webscripts.json.JSONWriter;
 
 
 @SuppressWarnings("deprecation")
-public class RumorsUserFactory
+public class XMPPUserFactory
     extends SlingshotUserFactory
 {
 
-    public static final String XMPP_USERNAME      = "{http://www.alfresco.org/model/rumors/1.0}username";
+    public static final String XMPP_USERNAME      = "{http://www.alfresco.org/model/xmpp/1.0}username";
     public static final String PROP_XMPP_USERNAME = "username";
 
 

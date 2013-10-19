@@ -18,7 +18,7 @@
  */
 
 /**
- * Salesforce utility functions
+ * XMPP utility functions
  * 
  * @author jottley
  * @author wabson
@@ -28,7 +28,7 @@
    /**
     * Salesforce namespace
     */
-   Alfresco.Rumors = Alfresco.Rumors || {};
+   Alfresco.XMPP = Alfresco.XMPP || {};
    
    /*
     * YUI aliases
@@ -47,7 +47,7 @@
     * @method hideMessage
     * @static
     */
-   Alfresco.Rumors.hideMessage = function RA_hideMessage()
+   Alfresco.XMPP.hideMessage = function RA_hideMessage()
    {
       if (userMessage)
       {
@@ -70,11 +70,11 @@
     *          - displayTime {int} Display time in seconds. Defaults to zero, i.e. show forever
     *          - showSpinner {boolean} Whether to display the spinner image or not, default is true
     */
-   Alfresco.Rumors.showMessage = function RA_showMessage(config)
+   Alfresco.XMPP.showMessage = function RA_showMessage(config)
    {
       if (userMessageText != config.text) // only update if text has changed
       {
-         Alfresco.Rumors.hideMessage();
+         Alfresco.XMPP.hideMessage();
          var displayTime = (config.displayTime === null || typeof config.displayTime == "undefined") ? 0 : config.displayTime,
                showSpinner = (config.showSpinner === null || typeof config.showSpinner == "undefined") ? true : config.showSpinner;
          userMessage = Alfresco.util.PopupManager.displayMessage({

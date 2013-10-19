@@ -5,7 +5,7 @@
 
 <@markup id="js">
    <#-- JavaScript Dependencies -->
-   <@script src="${url.context}/res/rumors/components/profile/profile.js" group="profile"/>
+   <@script src="${url.context}/res/xmpp/components/profile/profile.js" group="profile"/>
    <@script src="${url.context}/res/modules/simple-dialog.js" group="profile"/>
 </@>
 

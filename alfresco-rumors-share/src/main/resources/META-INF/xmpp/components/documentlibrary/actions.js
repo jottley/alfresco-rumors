@@ -18,7 +18,7 @@
  */
 
 /**
- * Rumors Document Library actions. Defines Rumors JS actions for documents.
+ * XMPP Document Library actions. Defines XMPP JS actions for documents.
  * 
  * @author jottley
  */
@@ -46,8 +46,8 @@
 
                             var me = this;
 
-                            Alfresco.Rumors.showMessage({
-                                text : "Enabling Rumors",
+                            Alfresco.XMPP.showMessage({
+                                text : "XMPP Enabling",
                                 displayTime : 0,
                                 showSpinner : true
                             });
@@ -166,8 +166,8 @@
 
             var me = this;
 
-            Alfresco.Rumors.showMessage({
-                text : "Disabling Rumors",
+            Alfresco.XMPP.showMessage({
+                text : "Disabling XMPP",
                 displayTime : 0,
                 showSpinner : true
             });
